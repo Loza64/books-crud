@@ -80,8 +80,8 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
 
         // Asignar rol si se proporciona
-        if (dto.getRoleId() != null) {
-            Role role = roleRepository.findById(dto.getRoleId())
+        if (dto.getRole() != null) {
+            Role role = roleRepository.findById(dto.getRole())
                     .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
             user.setRole(role);
         }
@@ -124,8 +124,8 @@ public class UserService {
             user.setEmail(dto.getEmail());
 
         // Actualizar rol si viene
-        if (dto.getRoleId() != null) {
-            Role role = roleRepository.findById(dto.getRoleId())
+        if (dto.getRole() != null) {
+            Role role = roleRepository.findById(dto.getRole())
                     .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
             user.setRole(role);
         }

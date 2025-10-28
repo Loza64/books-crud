@@ -26,8 +26,8 @@ public class BookService {
         book.setAuthor(dto.getAuthor());
         book.setName(dto.getName());
 
-        if (dto.getGenderId() != null) {
-            genderService.findById(dto.getGenderId()).ifPresent(book::setGender);
+        if (dto.getGender() != null) {
+            genderService.findById(dto.getGender()).ifPresent(book::setGender);
         }
 
         return bookRepository.save(book);
@@ -41,6 +41,10 @@ public class BookService {
         return genderService.findById(id)
                 .map(bookRepository::findByGender)
                 .orElse(Collections.emptyList());
+    }
+
+    public List<Book> findAll() {
+        return bookRepository.findAll();
     }
 
     public void delete(long id) {

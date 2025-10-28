@@ -18,5 +18,5 @@ public class UserUpdateDto {
     private String email;
 
     @Positive(message = "El roleId debe ser un número positivo")
-    private Long roleId;
+    private Long role;
 }

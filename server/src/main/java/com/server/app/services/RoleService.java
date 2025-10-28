@@ -40,8 +40,8 @@ public class RoleService {
 
         role.setName(dto.getName());
 
-        if (dto.getPermissionIds() != null && !dto.getPermissionIds().isEmpty()) {
-            Set<Permission> permissions = new HashSet<>(permissionRepository.findAllById(dto.getPermissionIds()));
+        if (dto.getPermissions() != null && !dto.getPermissions().isEmpty()) {
+            Set<Permission> permissions = new HashSet<>(permissionRepository.findAllById(dto.getPermissions()));
             role.setPermissions(permissions);
         }
 
@@ -72,7 +72,7 @@ public class RoleService {
             Set<Long> permIds = role.getPermissions().stream()
                     .map(Permission::getId)
                     .collect(Collectors.toSet());
-            dto.setPermissionIds(permIds);
+            dto.setPermissions(permIds);
         }
         return dto;
     }
