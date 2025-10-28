@@ -1,13 +1,10 @@
 package com.server.app.controllers;
 
-import com.server.app.dto.permission.PermissionDto;
 import com.server.app.dto.response.PageResponse;
 import com.server.app.entities.Permission;
 import com.server.app.services.PermissionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/permissions")
