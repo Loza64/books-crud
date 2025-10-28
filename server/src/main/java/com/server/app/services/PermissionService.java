@@ -3,11 +3,11 @@ package com.server.app.services;
 import com.server.app.dto.permission.PermissionDto;
 import com.server.app.entities.Permission;
 import com.server.app.repositories.PermissionRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class PermissionService {
@@ -18,40 +18,21 @@ public class PermissionService {
         this.permissionRepository = permissionRepository;
     }
 
-    public List<PermissionDto> findAll() {
-        return permissionRepository.findAll()
-                .stream()
-                .map(this::toDto)
-                .collect(Collectors.toList());
+    public Page<Permission> findAllPaginated(int page, int size) {
+        return permissionRepository.findAll(PageRequest.of(page, size));
     }
 
-    // 🔹 OBTENER PERMISO POR ID
-    public Optional<PermissionDto> findById(Long id) {
-        return permissionRepository.findById(id).map(this::toDto);
+    public Optional<Permission> findById(Long id) {
+        return permissionRepository.findById(id);
     }
 
-    // 🔹 CREAR O ACTUALIZAR PERMISO DESDE DTO
-    public PermissionDto save(PermissionDto dto) {
-        Permission permission = new Permission();
-        permission.setId(dto.getId());
-        permission.setPath(dto.getPath());
-        permission.setMethod(dto.getMethod());
-
-        Permission saved = permissionRepository.save(permission);
-        return toDto(saved);
-    }
-
-    // 🔹 ELIMINAR PERMISO
-    public void delete(Long id) {
-        permissionRepository.deleteById(id);
-    }
-
-    // 🔹 CONVERSIÓN ENTIDAD → DTO
-    private PermissionDto toDto(Permission permission) {
-        PermissionDto dto = new PermissionDto();
-        dto.setId(permission.getId());
-        dto.setPath(permission.getPath());
-        dto.setMethod(permission.getMethod());
-        return dto;
+    public void createIfNotExists(String path, String method) {
+        Optional<Permission> existing = permissionRepository.findByPathAndMethod(path, method);
+        if (existing.isEmpty()) {
+            Permission permission = new Permission();
+            permission.setPath(path);
+            permission.setMethod(method);
+            permissionRepository.save(permission);
+        }
     }
 }

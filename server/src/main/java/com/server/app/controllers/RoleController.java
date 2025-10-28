@@ -1,13 +1,14 @@
 package com.server.app.controllers;
 
+import com.server.app.dto.response.PageResponse;
 import com.server.app.dto.role.RoleDto;
+import com.server.app.entities.Role;
 import com.server.app.services.RoleService;
-
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
-import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -20,21 +21,51 @@ public class RoleController {
         this.roleService = roleService;
     }
 
+    // -------------------- CREATE --------------------
     @PostMapping
-    public ResponseEntity<RoleDto> save(@Valid @RequestBody RoleDto dto) {
-        return ResponseEntity.ok(roleService.save(dto));
+    public ResponseEntity<Role> save(@Valid @RequestBody RoleDto role) {
+        return ResponseEntity.ok(roleService.save(role));
     }
 
-    @GetMapping
-    public ResponseEntity<List<RoleDto>> findAll() {
-        return ResponseEntity.ok(roleService.findAll());
+    // -------------------- UPDATE --------------------
+    @PutMapping("/{id}")
+    public ResponseEntity<Role> update(@PathVariable Long id, @Valid @RequestBody RoleDto dto) {
+        Role updatedRole = roleService.update(id, dto);
+        return ResponseEntity.ok(updatedRole);
     }
 
+    // -------------------- ASSIGN PERMISSIONS --------------------
     @PutMapping("/{id}/permissions")
-    public ResponseEntity<RoleDto> assignPermissions(@PathVariable Long id, @RequestBody Set<Long> permissionIds) {
+    public ResponseEntity<Role> assignPermissions(@PathVariable Long id, @RequestBody Set<Long> permissionIds) {
         return ResponseEntity.ok(roleService.assignPermissions(id, permissionIds));
     }
 
+    // -------------------- GET ALL --------------------
+    @GetMapping
+    public ResponseEntity<PageResponse<Role>> findAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Page<Role> rolesPage = roleService.findAll(page, size);
+
+        PageResponse<Role> response = new PageResponse<>(
+                rolesPage.getContent(),
+                rolesPage.getNumber(),
+                rolesPage.getSize(),
+                rolesPage.getTotalPages());
+
+        return ResponseEntity.ok(response);
+    }
+
+    // -------------------- GET BY ID --------------------
+    @GetMapping("/{id}")
+    public ResponseEntity<Role> findById(@PathVariable Long id) {
+        return roleService.findById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    // -------------------- DELETE --------------------
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id) {
         roleService.delete(id);

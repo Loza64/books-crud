@@ -1,14 +1,14 @@
 package com.server.app.repositories;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 import com.server.app.entities.Book;
 import com.server.app.entities.Gender;
 
-@EnableJpaRepositories
 public interface BookRepository extends JpaRepository<Book, Long> {
-    List<Book> findByGender(Gender gender);
+    Page<Book> findAll(Pageable pageable);
+
+    Page<Book> findByGender(Gender gender, Pageable pageable);
 }

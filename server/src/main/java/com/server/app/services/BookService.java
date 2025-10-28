@@ -1,12 +1,13 @@
 package com.server.app.services;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.server.app.dto.book.BookCreateDto;
+import com.server.app.dto.book.BookUpdateDto;
 import com.server.app.entities.Book;
 import com.server.app.repositories.BookRepository;
 
@@ -33,21 +34,39 @@ public class BookService {
         return bookRepository.save(book);
     }
 
+    public Book update(long id, BookUpdateDto dto) {
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Libro no encontrado"));
+
+        if (dto.getAuthor() != null)
+            book.setAuthor(dto.getAuthor());
+        if (dto.getName() != null)
+            book.setName(dto.getName());
+        if (dto.getGender() != null) {
+            genderService.findById(dto.getGender()).ifPresent(book::setGender);
+        }
+
+        return bookRepository.save(book);
+    }
+
     public Optional<Book> findById(long id) {
         return bookRepository.findById(id);
     }
 
-    public List<Book> findAllByGenderId(long id) {
-        return genderService.findById(id)
-                .map(bookRepository::findByGender)
-                .orElse(Collections.emptyList());
-    }
-
-    public List<Book> findAll() {
-        return bookRepository.findAll();
-    }
-
     public void delete(long id) {
         bookRepository.deleteById(id);
+    }
+
+    public Page<Book> findAll(int page, int size) {
+        return bookRepository.findAll(PageRequest.of(page, size));
+    }
+
+    public Page<Book> findByGenderId(long genderId, int page, int size) {
+        var genderOpt = genderService.findById(genderId);
+        if (genderOpt.isPresent()) {
+            PageRequest pageable = PageRequest.of(page, size);
+            return bookRepository.findByGender(genderOpt.get(), pageable);
+        }
+        return Page.empty();
     }
 }

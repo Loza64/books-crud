@@ -1,7 +1,7 @@
 package com.server.app.services;
 
-import java.util.List;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +30,6 @@ public class UserService {
         this.roleRepository = roleRepository;
     }
 
-    // 🔹 LOGIN
     public AuthResponse login(String username, String password) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
@@ -43,7 +42,6 @@ public class UserService {
         return new AuthResponse(token, user);
     }
 
-    // 🔹 SIGNUP con rol por defecto
     public AuthResponse signUp(UserCreateDto dto) {
         if (userRepository.findByUsername(dto.getUsername()).isPresent()) {
             throw new RuntimeException("El username ya está en uso");
@@ -56,7 +54,6 @@ public class UserService {
         user.setEmail(dto.getEmail());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
 
-        // Asignar rol por defecto (ID 2)
         Role defaultRole = roleRepository.findById(2L)
                 .orElseThrow(() -> new RuntimeException("Rol por defecto no encontrado"));
         user.setRole(defaultRole);
@@ -79,7 +76,6 @@ public class UserService {
         user.setEmail(dto.getEmail());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
 
-        // Asignar rol si se proporciona
         if (dto.getRole() != null) {
             Role role = roleRepository.findById(dto.getRole())
                     .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
@@ -89,22 +85,13 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public List<User> findAll() {
-        return userRepository.findAll();
+    public Page<User> findAllPaginated(int page, int size) {
+        return userRepository.findAll(PageRequest.of(page, size));
     }
 
     public User findById(int id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-    }
-
-    // 🔹 Asignar un solo rol
-    public User assignRole(int userId, Long roleId) {
-        User user = findById(userId);
-        Role role = roleRepository.findById(roleId)
-                .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
-        user.setRole(role);
-        return userRepository.save(user);
     }
 
     public User updatePassword(int userId, String newPassword) {
@@ -123,7 +110,6 @@ public class UserService {
         if (dto.getEmail() != null)
             user.setEmail(dto.getEmail());
 
-        // Actualizar rol si viene
         if (dto.getRole() != null) {
             Role role = roleRepository.findById(dto.getRole())
                     .orElseThrow(() -> new RuntimeException("Rol no encontrado"));

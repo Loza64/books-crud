@@ -5,10 +5,13 @@ import com.server.app.entities.Permission;
 import com.server.app.entities.Role;
 import com.server.app.repositories.PermissionRepository;
 import com.server.app.repositories.RoleRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class RoleService {
@@ -21,21 +24,20 @@ public class RoleService {
         this.permissionRepository = permissionRepository;
     }
 
-    public List<RoleDto> findAll() {
-        return roleRepository.findAll()
-                .stream()
-                .map(this::toDto)
-                .collect(Collectors.toList());
+    public Page<Role> findAll(int page, int size) {
+        return roleRepository.findAll(PageRequest.of(page, size));
     }
 
-    public Optional<RoleDto> findById(Long id) {
-        return roleRepository.findById(id).map(this::toDto);
+    public Optional<Role> findById(Long id) {
+        return roleRepository.findById(id);
     }
 
-    public RoleDto save(RoleDto dto) {
-        Role role = new Role();
+    public Role save(RoleDto dto) {
+        Role role;
         if (dto.getId() != null) {
             role = roleRepository.findById(dto.getId()).orElse(new Role());
+        } else {
+            role = new Role();
         }
 
         role.setName(dto.getName());
@@ -45,35 +47,35 @@ public class RoleService {
             role.setPermissions(permissions);
         }
 
-        Role saved = roleRepository.save(role);
-        return toDto(saved);
+        return roleRepository.save(role);
+    }
+
+    // -------------------- UPDATE --------------------
+    public Role update(Long id, RoleDto dto) {
+        Role role = roleRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Role not found"));
+
+        role.setName(dto.getName());
+
+        if (dto.getPermissions() != null) {
+            Set<Permission> permissions = new HashSet<>(permissionRepository.findAllById(dto.getPermissions()));
+            role.setPermissions(permissions);
+        }
+
+        return roleRepository.save(role);
     }
 
     public void delete(Long id) {
         roleRepository.deleteById(id);
     }
 
-    public RoleDto assignPermissions(Long roleId, Set<Long> permissionIds) {
+    public Role assignPermissions(Long roleId, Set<Long> permissionIds) {
         Role role = roleRepository.findById(roleId)
                 .orElseThrow(() -> new RuntimeException("Role not found"));
 
         Set<Permission> permissions = new HashSet<>(permissionRepository.findAllById(permissionIds));
         role.setPermissions(permissions);
 
-        Role saved = roleRepository.save(role);
-        return toDto(saved);
-    }
-
-    private RoleDto toDto(Role role) {
-        RoleDto dto = new RoleDto();
-        dto.setId(role.getId());
-        dto.setName(role.getName());
-        if (role.getPermissions() != null) {
-            Set<Long> permIds = role.getPermissions().stream()
-                    .map(Permission::getId)
-                    .collect(Collectors.toSet());
-            dto.setPermissions(permIds);
-        }
-        return dto;
+        return roleRepository.save(role);
     }
 }

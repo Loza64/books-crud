@@ -1,8 +1,9 @@
 package com.server.app.services;
 
-import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.server.app.dto.gender.GenderDto;
@@ -11,6 +12,7 @@ import com.server.app.repositories.GenderRepository;
 
 @Service
 public class GenderService {
+
     private final GenderRepository genderRepository;
 
     public GenderService(GenderRepository genderRepository) {
@@ -18,13 +20,13 @@ public class GenderService {
     }
 
     public Gender create(GenderDto dto) {
-        Gender data = new Gender();
-        data.setName(dto.getName());
-        return genderRepository.save(data);
+        Gender gender = new Gender();
+        gender.setName(dto.getName());
+        return genderRepository.save(gender);
     }
 
-    public List<Gender> findAll() {
-        return genderRepository.findAll();
+    public Page<Gender> findAll(int page, int size) {
+        return genderRepository.findAll(PageRequest.of(page, size));
     }
 
     public Optional<Gender> findById(long id) {
