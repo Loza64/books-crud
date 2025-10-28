@@ -4,5 +4,5 @@ export default interface Book {
     id?: number
     name: string
     author: string
-    gender?: Gender | null
+    gender?: Gender | number | null
 }

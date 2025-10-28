@@ -21,26 +21,22 @@ public class RoleController {
         this.roleService = roleService;
     }
 
-    // -------------------- CREATE --------------------
     @PostMapping
     public ResponseEntity<Role> save(@Valid @RequestBody RoleDto role) {
         return ResponseEntity.ok(roleService.save(role));
     }
 
-    // -------------------- UPDATE --------------------
     @PutMapping("/{id}")
     public ResponseEntity<Role> update(@PathVariable Long id, @Valid @RequestBody RoleDto dto) {
         Role updatedRole = roleService.update(id, dto);
         return ResponseEntity.ok(updatedRole);
     }
 
-    // -------------------- ASSIGN PERMISSIONS --------------------
     @PutMapping("/{id}/permissions")
     public ResponseEntity<Role> assignPermissions(@PathVariable Long id, @RequestBody Set<Long> permissionIds) {
         return ResponseEntity.ok(roleService.assignPermissions(id, permissionIds));
     }
 
-    // -------------------- GET ALL --------------------
     @GetMapping
     public ResponseEntity<PageResponse<Role>> findAll(
             @RequestParam(defaultValue = "0") int page,

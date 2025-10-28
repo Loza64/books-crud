@@ -37,4 +37,13 @@ export class AuthService {
             return null
         }
     }
+
+    public async profile() {
+        const response = await this.authServide.profile()
+        if (response) {
+            return response
+        } else {
+            return null
+        }
+    }
 }

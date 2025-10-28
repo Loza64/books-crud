@@ -3,6 +3,7 @@ package com.server.app.controllers;
 import com.server.app.dto.auth.LoginDto;
 import com.server.app.dto.response.AuthResponse;
 import com.server.app.dto.user.UserCreateDto;
+import com.server.app.entities.User;
 import com.server.app.services.UserService;
 
 import org.springframework.http.ResponseEntity;
@@ -30,4 +31,13 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/profile")
+    public ResponseEntity<User> getProfile(@RequestHeader("Authorization") String authHeader) {
+        String token = authHeader.startsWith("Bearer ")
+                ? authHeader.substring(7)
+                : authHeader;
+
+        User user = userService.profile(token);
+        return ResponseEntity.ok(user);
+    }
 }

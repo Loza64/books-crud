@@ -1,6 +1,7 @@
-import axios, { AxiosHeaders, type AxiosInstance } from 'axios'
+import axios, { AxiosHeaders, type AxiosInstance, type AxiosRequestConfig } from 'axios'
 import type User from '../model/User'
 import { getToken } from '../utlis/token'
+import type PaginationResponse from '../model/PaginationResponse'
 
 export default class ApiService {
     private static instances: Map<string, ApiService> = new Map()
@@ -33,9 +34,9 @@ export default class ApiService {
         return this.instances.get(endpoint)!
     }
 
-    public async findAll<T>({ endpoint }: { endpoint?: string } = {}): Promise<T[]> {
+    public async findAll<T>({ endpoint, config }: { endpoint?: string, config?: AxiosRequestConfig } = {}): Promise<PaginationResponse<T>> {
         const url = endpoint || this.endpoint
-        const res = await this.axiosInstance.get<T[]>(url)
+        const res = await this.axiosInstance.get<PaginationResponse<T>>(url, config)
         return res.data
     }
 
@@ -70,6 +71,11 @@ export default class ApiService {
 
     public async signUp({ payload }: { payload: User }): Promise<{ token: string; data: User }> {
         const res = await this.axiosInstance.post<{ token: string; data: User }>('/auth/signup', payload)
+        return res.data
+    }
+
+    public async profile(): Promise<User> {
+        const res = await this.axiosInstance.get<User>('/auth/profile')
         return res.data
     }
 }

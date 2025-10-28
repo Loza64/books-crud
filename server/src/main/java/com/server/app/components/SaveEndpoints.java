@@ -10,6 +10,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 import org.springframework.web.util.pattern.PathPattern;
 
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 public class SaveEndpoints implements ApplicationListener<ApplicationReadyEvent> {
@@ -17,31 +18,26 @@ public class SaveEndpoints implements ApplicationListener<ApplicationReadyEvent>
     private final RequestMappingHandlerMapping handlerMapping;
     private final PermissionService permissionService;
 
-    public SaveEndpoints(RequestMappingHandlerMapping handlerMapping,
-            PermissionService permissionService) {
+    public SaveEndpoints(RequestMappingHandlerMapping handlerMapping, PermissionService permissionService) {
         this.handlerMapping = handlerMapping;
         this.permissionService = permissionService;
     }
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
-        Map<RequestMappingInfo, HandlerMethod> map = handlerMapping.getHandlerMethods();
 
-        map.forEach((info, method) -> {
-            if (info.getPathPatternsCondition() != null) {
-                for (PathPattern pattern : info.getPathPatternsCondition().getPatterns()) {
-                    processEndpoint(pattern.getPatternString(), info);
-                }
-            } else if (info.getPatternsCondition() != null) {
-                for (String path : info.getPatternsCondition().getPatterns()) {
-                    processEndpoint(path, info);
-                }
-            }
+        handlerMapping.getHandlerMethods().forEach((info, method) -> {
+            Optional.ofNullable(info.getPathPatternsCondition()).ifPresentOrElse(
+                    condition -> condition.getPatterns()
+                            .forEach(p -> processEndpoint(p.getPatternString(), info)),
+                    () -> Optional.ofNullable(info.getPatternsCondition())
+                            .ifPresent(condition -> condition.getPatterns()
+                                    .forEach(path -> processEndpoint(path, info))));
         });
     }
 
     private void processEndpoint(String path, RequestMappingInfo info) {
-        if (path.equals("/error") || path.startsWith("/api/auth")) {
+        if (path.equals("/error") || path.equals("/api/auth/login") || path.equals("/api/auth/signup")) {
             return;
         }
 

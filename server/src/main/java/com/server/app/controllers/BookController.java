@@ -35,8 +35,9 @@ public class BookController {
     @GetMapping
     public ResponseEntity<PageResponse<Book>> getBooks(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Page<Book> booksPage = bookService.findAll(page, size);
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) Long gender) {
+        Page<Book> booksPage = bookService.findAll(page, size, gender);
         PageResponse<Book> response = new PageResponse<>(
                 booksPage.getContent(),
                 booksPage.getNumber(),

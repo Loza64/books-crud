@@ -1,9 +1,11 @@
+import type { AxiosRequestConfig } from 'axios'
 import type Book from '../../model/Book'
+import type PaginationResponse from '../../model/PaginationResponse'
 import ApiService from '../ApiService'
 
 type Entity = Book
 
-export default class BooksService {
+class BooksService {
     private static instance: BooksService
     private api = ApiService.getInstance('/books')
 
@@ -16,8 +18,8 @@ export default class BooksService {
         return this.instance
     }
 
-    public async findAll(): Promise<Entity[]> {
-        return this.api.findAll<Entity>()
+    public async findAll(config?: AxiosRequestConfig): Promise<PaginationResponse<Entity>> {
+        return this.api.findAll<Entity>({ config })
     }
 
     public async findById(id: number): Promise<Entity> {
@@ -36,3 +38,6 @@ export default class BooksService {
         return this.api.delete({ id })
     }
 }
+
+const booksService = BooksService.getInstance()
+export default booksService;

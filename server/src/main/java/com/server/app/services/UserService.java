@@ -64,6 +64,12 @@ public class UserService {
         return new AuthResponse(token, user);
     }
 
+    public User profile(String token) {
+        int id = jwt.extractIdUser(token);
+        return userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    }
+
     public User create(UserCreateDto dto) {
         if (userRepository.findByUsername(dto.getUsername()).isPresent()) {
             throw new RuntimeException("El username ya está en uso");

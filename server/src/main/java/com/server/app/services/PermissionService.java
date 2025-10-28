@@ -1,6 +1,5 @@
 package com.server.app.services;
 
-import com.server.app.dto.permission.PermissionDto;
 import com.server.app.entities.Permission;
 import com.server.app.repositories.PermissionRepository;
 import org.springframework.data.domain.Page;

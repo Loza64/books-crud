@@ -57,8 +57,12 @@ public class BookService {
         bookRepository.deleteById(id);
     }
 
-    public Page<Book> findAll(int page, int size) {
-        return bookRepository.findAll(PageRequest.of(page, size));
+    public Page<Book> findAll(int page, int size, Long genderId) {
+        if (genderId != null) {
+            return findByGenderId(genderId, page, size);
+        } else {
+            return bookRepository.findAll(PageRequest.of(page, size));
+        }
     }
 
     public Page<Book> findByGenderId(long genderId, int page, int size) {

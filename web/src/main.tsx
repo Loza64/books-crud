@@ -3,6 +3,7 @@ import './index.css'
 import App from './App.tsx'
 import { ConfigProvider } from 'antd'
 import { theme } from './constants/antd.ts'
+import "antd/dist/reset.css"
 
 createRoot(document.getElementById('root')!).render(
   <ConfigProvider theme={theme}>
