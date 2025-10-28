@@ -28,13 +28,11 @@ public class SaveEndpoints implements ApplicationListener<ApplicationReadyEvent>
         Map<RequestMappingInfo, HandlerMethod> map = handlerMapping.getHandlerMethods();
 
         map.forEach((info, method) -> {
-            // Primero intentamos obtener PathPatterns (Spring 6+)
             if (info.getPathPatternsCondition() != null) {
                 for (PathPattern pattern : info.getPathPatternsCondition().getPatterns()) {
                     processEndpoint(pattern.getPatternString(), info);
                 }
             } else if (info.getPatternsCondition() != null) {
-                // Para compatibilidad con versiones antiguas
                 for (String path : info.getPatternsCondition().getPatterns()) {
                     processEndpoint(path, info);
                 }
